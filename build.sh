@@ -28,3 +28,46 @@ sudo cp -v sources.${release}.list chroot/etc/apt/sources.list
 sudo mount --rbind /sys chroot/sys
 sudo mount --rbind /dev chroot/dev
 sudo mount -t proc none chroot/proc
+
+# Working inside the chroot
+chmod +x ./chroot.sh
+./chroot.sh
+
+# Unmount pseudo-filesystems for the chroot
+sudo umount -lfr chroot/proc
+sudo umount -lfr chroot/sys
+sudo umount -lfr chroot/dev
+
+echo $0: Preparing image...
+tar xf image-amd64.tar.lzma
+
+# Copying the kernal from the chroot
+sudo \cp --verbose -rf chroot/boot/vmlinuz-**-generic image/casper/vmlinuz
+sudo \cp --verbose -rf chroot/boot/initrd.img-**-generic image/casper/initrd.lz
+
+# Creating file-system manifests
+sudo chroot chroot dpkg-query -W --showformat='${Package} ${Version}\n' | sudo tee image/casper/filesystem.manifest
+sudo cp -v image/casper/filesystem.manifest image/casper/filesystem.manifest-desktop
+REMOVE='ubiquity ubiquity-frontend-gtk ubiquity-frontend-kde casper lupin-casper live-initramfs user-setup discover1 xresprobe os-prober libdebian-installer4'
+for i in $REMOVE
+do
+        sudo sed -i "/${i}/d" image/casper/filesystem.manifest-desktop
+done
+
+# Squashing the live filesystem (Compresssing the chroot)
+sudo mksquashfs chroot image/casper/filesystem.squashfs -noappend -no-progress
+
+# Creating the ISO image from the tree
+IMAGE_NAME=${IMAGE_NAME:-"CUSTOM ${release} $(date -u +%Y%m%d) - ${arch}"}
+sudo apt-get install genisoimage
+sudo genisoimage -r -V "$IMAGE_NAME" -cache-inodes -J -l \
+  -allow-limited-size -udf \
+  -b isolinux/isolinux.bin -c isolinux/boot.cat \
+  -no-emul-boot -boot-load-size 4 -boot-info-table \
+  -p "${DEBFULLNAME:-$USER} <${DEBEMAIL:-on host $(hostname --fqdn)}>" \
+  -A "$IMAGE_NAME" \
+  -o ../$ISOFILE .
+
+# Create the associated md5sum file
+cd ..
+md5sum $ISOFILE >${ISOFILE}.md5
