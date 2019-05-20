@@ -1,10 +1,10 @@
 # Custom Live ISO Generator
 
 ## Introduction
-	This project contains of a simple shell script that can be possibly and extended for creating a pre-configured custom Linux.
+This project contains of a simple shell script that can be possibly and extended for creating a pre-configured custom Linux.
 
 ## Architecture
-	The output ISO is based on Ubuntu/Debian architecture. It uses LXQt as standard desktop environment(you can use any Qt desktop environment of your choice).
+The output ISO is based on Ubuntu/Debian architecture. It uses LXQt as standard desktop environment(you can use any Qt desktop environment of your choice).
 
 ## Build
 **Building Locally**
