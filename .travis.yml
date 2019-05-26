@@ -1,42 +1,42 @@
-# This provides us with GCC binary support so we can run bash
 language: generic
-
-# Try to supply the packages from Travis so that when we run build.sh we won't
-# be required to download them again.
 include:
-  - os: linux
-    addons:
-      apt:
-        update: true
-        sources:
-          - ubuntu-toolchain-r-test
-        packages:
-          - debootstrap
-          - genisoimage
-          - p7zip-full
-          - squashfs-tools
-          - ubuntu-dev-tools
-          - dpkg-dev
-          - debhelper
-          - fakeroot
-          - devscripts
-          - jq
-
+- os: linux
+  addons:
+    apt:
+      update: true
+      sources:
+      - ubuntu-toolchain-r-test
+      packages:
+      - debootstrap
+      - genisoimage
+      - p7zip-full
+      - squashfs-tools
+      - ubuntu-dev-tools
+      - dpkg-dev
+      - debhelper
+      - fakeroot
+      - devscripts
+      - jq
 sudo: required
 dist: xenial
 git:
   depth: 22
-
 script:
-  - export LC_ALL="en_US.UTF-8"
-  - export LANG="en_US.UTF-8"
-  - export LANGUAGE="en_US.UTF-8"
-  - chmod +x ./build.sh
-  - ./build.sh |& tee log.txt
-
+- export LC_ALL="en_US.UTF-8"
+- export LANG="en_US.UTF-8"
+- export LANGUAGE="en_US.UTF-8"
+- chmod +x ./build.sh
+- "./build.sh |& tee log.txt"
 before_deploy:
-  - export image_name="`echo *.iso`"
-  - cat *.iso > "/home/travis/${image_name}"
-  - cp log.txt /home/travis/log.txt
-
-
+- export image_name="`echo *.iso`"
+- cat *.iso > "/home/travis/${image_name}"
+- cp log.txt /home/travis/log.txt
+deploy:
+  provider: releases
+  api_key:
+    secure: 1Guluvp00N8fZUPD40PihMzbGmT/pEopKswHsPBS4aU9x2aeC0YxceiEg/PeTASt/oferG7P17MH3pMvgLirc606xLm/3eBN+0k5V9sRhdNW3U+DPOW8GzrA22meUSqPt1E304W3PoDCqVxVhLrRlg1kB4Nde4r5T9mgaVBk+3kgxoC/66NjrPX3CZuQFoRzD1LXORVc8z/lBg9EzTVvfnv/46qk6M5smhXCVE8c5rpjftLNtVjjwYldIaGeGXmlMxiF9RIo3irOxPih+KNtSjk3e6SyPzPZNaDtXTanCfgqrIuLwiVn//imOA6yFRdIKLbpm607JY39dxTpchwZKHcbcjT2VJ6IVeASe+hL+8MD2EvTVnnGulmQd5RqnjQb+qLzDkFJIMnRYJOGMiiX2X3H3fUPoRFd0j3zSerWmIStxslbbY3lUwXkOVLBEJexBEuciMrSCOQveqTgnUvAevLk2RAlcF0xRgY3WlnYpuPlUinfkmtxZi57ldEnLEH+hheAZEdvavoy8DQXAMQrPs8Vu3V6oxd1w3RyLh7t7dMdE24cwiEHh+NXHQu/PPyOSIaOYvMtPtzkSYLHfX9qv1qKiXxPFNuHct6uurc/eJr7bA1Av8G9IzNmd3ejhczKvnYXZfbWqHYKMng1RJc8y896bWAJMinY/8HBLB+OqxE=
+  file: 
+    - "/home/travis/${image_name}"
+    - "/home/travis/log.txt"
+  on:
+    repo: pranav1698/Custom-LiveCD-Generator
