@@ -56,10 +56,35 @@ done
 
 # Squashing the live filesystem (Compresssing the chroot)
 sudo mksquashfs chroot image/casper/filesystem.squashfs -noappend -no-progress
-
 # Creating the ISO image from the tree
 IMAGE_NAME=${IMAGE_NAME:-"CUSTOM ${release} $(date -u +%Y%m%d) - ${arch}"}
 ISOFILE=CUSTOM-${release}-$(date -u +%Y%m%d)-${arch}.iso
+
+sudo genisoimage -r -V "$IMAGE_NAME" -cache-inodes -J -l \
+  -b isolinux/isolinux.bin -c isolinux/boot.cat \
+  -no-emul-boot -boot-load-size 4 -boot-info-table \
+  -p "${DEBFULLNAME:-$USER} <${DEBEMAIL:-on host $(hostname --fqdn)}>" \
+  -A "$IMAGE_NAME" \
+  -m filesystem.squashfs \
+  -o ../$ISOFILE.tmp .
+
+# Mount the temporary ISO and copy boot.cat out of it
+tempmount=/tmp/$0.tempmount.$$
+mkdir $tempmount
+loopdev=$(sudo losetup -f)
+sudo losetup $loopdev ../$ISOFILE.tmp
+sudo mount -r -t iso9660 $loopdev $tempmount
+sudo cp -vp $tempmount/isolinux/boot.cat isolinux/
+sudo umount $loopdev
+sudo losetup -d $loopdev
+rmdir $tempmount
+
+# Generate md5sum.txt checksum file (now with new improved boot.cat)
+sudo find . -type f -print0 |xargs -0 sudo md5sum |grep -v "\./md5sum.txt" >md5sum.txt
+
+# Remove temporary ISO file
+sudo rm ../$ISOFILE.tmp
+
 sudo apt-get install genisoimage
 sudo genisoimage -r -V "$IMAGE_NAME" -cache-inodes -J -l \
   -allow-limited-size -udf \
