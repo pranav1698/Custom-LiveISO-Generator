@@ -59,6 +59,7 @@ sudo mksquashfs chroot image/casper/filesystem.squashfs -noappend -no-progress
 
 # Creating the ISO image from the tree
 IMAGE_NAME=${IMAGE_NAME:-"CUSTOM ${release} $(date -u +%Y%m%d) - ${arch}"}
+ISOFILE=CUSTOM-${release}-$(date -u +%Y%m%d)-${arch}.iso
 sudo apt-get install genisoimage
 sudo genisoimage -r -V "$IMAGE_NAME" -cache-inodes -J -l \
   -allow-limited-size -udf \
@@ -66,7 +67,7 @@ sudo genisoimage -r -V "$IMAGE_NAME" -cache-inodes -J -l \
   -no-emul-boot -boot-load-size 4 -boot-info-table \
   -p "${DEBFULLNAME:-$USER} <${DEBEMAIL:-on host $(hostname --fqdn)}>" \
   -A "$IMAGE_NAME" \
-  -o ../$ISOFILE .tmp .
+  -o ../$ISOFILE .
 
 # Create the associated md5sum file
 cd ..
