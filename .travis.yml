@@ -1,0 +1,42 @@
+# This provides us with GCC binary support so we can run bash
+language: generic
+
+# Try to supply the packages from Travis so that when we run build.sh we won't
+# be required to download them again.
+include:
+  - os: linux
+    addons:
+      apt:
+        update: true
+        sources:
+          - ubuntu-toolchain-r-test
+        packages:
+          - debootstrap
+          - genisoimage
+          - p7zip-full
+          - squashfs-tools
+          - ubuntu-dev-tools
+          - dpkg-dev
+          - debhelper
+          - fakeroot
+          - devscripts
+          - jq
+
+sudo: required
+dist: xenial
+git:
+  depth: 22
+
+script:
+  - export LC_ALL="en_US.UTF-8"
+  - export LANG="en_US.UTF-8"
+  - export LANGUAGE="en_US.UTF-8"
+  - chmod +x ./build.sh
+  - ./build.sh |& tee log.txt
+
+before_deploy:
+  - export image_name="`echo *.iso`"
+  - cat *.iso > "/home/travis/${image_name}"
+  - cp log.txt /home/travis/log.txt
+
+
