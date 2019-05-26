@@ -59,7 +59,7 @@ sudo mksquashfs chroot image/casper/filesystem.squashfs -noappend -no-progress
 # Creating the ISO image from the tree
 IMAGE_NAME=${IMAGE_NAME:-"CUSTOM ${release} $(date -u +%Y%m%d) - ${arch}"}
 ISOFILE=CUSTOM-${release}-$(date -u +%Y%m%d)-${arch}.iso
-
+sudo apt-get install genisoimage
 sudo genisoimage -r -V "$IMAGE_NAME" -cache-inodes -J -l \
   -b isolinux/isolinux.bin -c isolinux/boot.cat \
   -no-emul-boot -boot-load-size 4 -boot-info-table \
