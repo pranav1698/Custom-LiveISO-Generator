@@ -66,7 +66,7 @@ sudo genisoimage -r -V "$IMAGE_NAME" -cache-inodes -J -l \
   -no-emul-boot -boot-load-size 4 -boot-info-table \
   -p "${DEBFULLNAME:-$USER} <${DEBEMAIL:-on host $(hostname --fqdn)}>" \
   -A "$IMAGE_NAME" \
-  -o ../$ISOFILE .
+  -o ../$ISOFILE .tmp .
 
 # Create the associated md5sum file
 cd ..
